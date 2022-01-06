@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="250dp"
-        android:text="00:60"
+        android:text="05:00"
         android:textColor="@color/design_default_color_primary_dark"
         android:textSize="50sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -49,6 +49,7 @@
 
     <Button
         android:id="@+id/button"
+        android:onClick="start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
