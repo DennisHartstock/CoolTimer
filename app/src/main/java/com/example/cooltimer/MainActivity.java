@@ -1,6 +1,7 @@
 package com.example.cooltimer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import java.util.Locale;
 
@@ -22,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private Button button;
     private CountDownTimer countDownTimer;
-    boolean isTimerOn;
+    private boolean isTimerOn;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +81,27 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-                    MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.bell_sound);
-                    mediaPlayer.start();
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+                    if (sharedPreferences.getBoolean("sound", true)) {
+                        String melody = sharedPreferences.getString("melody", "bell_sound");
+
+                        switch (melody) {
+                            case "bell_sound":
+                                mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.bell_sound);
+                                mediaPlayer.start();
+                                break;
+                            case "bip_sound":
+                                mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.bip_sound);
+                                mediaPlayer.start();
+                                break;
+                            case "siren_sound":
+                                mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.siren_sound);
+                                mediaPlayer.start();
+                                break;
+                        }
+
+                    }
                     resetTimer();
                 }
             };
