@@ -15,4 +15,11 @@
         android:entries="@array/melodies"
         android:entryValues="@array/melody_values"/>
 
+    <EditTextPreference
+        android:title="Duration in seconds"
+        android:key="duration"
+        android:defaultValue="30"
+
+        />
+
 </PreferenceScreen>

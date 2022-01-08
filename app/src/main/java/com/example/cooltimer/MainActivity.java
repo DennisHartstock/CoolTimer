@@ -19,13 +19,15 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     private SeekBar seekBar;
     private TextView textView;
     private Button button;
     private CountDownTimer countDownTimer;
     private boolean isTimerOn;
     private MediaPlayer mediaPlayer;
+    private int duration;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +37,10 @@ public class MainActivity extends AppCompatActivity {
         seekBar = findViewById(R.id.seekBar);
         textView = findViewById(R.id.textView);
         button = findViewById(R.id.button);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        seekBar.setMax(600);
-        seekBar.setProgress(300);
+        seekBar.setMax(60);
+        setDurationFromSharedPreferences(sharedPreferences);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -59,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     public void start(View view) {
@@ -81,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
                     if (sharedPreferences.getBoolean("sound", true)) {
                         String melody = sharedPreferences.getString("melody", "bell_sound");
@@ -110,16 +113,36 @@ public class MainActivity extends AppCompatActivity {
         } else {
             resetTimer();
         }
+    }
 
+    private void updateTimer(long millisUntilFinished) {
+        int minutes = (int) millisUntilFinished/1000/60;
+        int seconds = (int) millisUntilFinished/1000 - (minutes * 60);
+
+        String minutesString = "";
+        String secondsString = "";
+
+        if (minutes < 10) {
+            minutesString = "0" + minutes;
+        } else {
+            minutesString = String.valueOf(minutes);
+        }
+
+        if (seconds < 10) {
+            secondsString = "0" + seconds;
+        } else {
+            secondsString = String.valueOf(seconds);
+        }
+
+        textView.setText(minutesString + ":" + secondsString);
     }
 
     private void resetTimer() {
         countDownTimer.cancel();
-        textView.setText("05:00");
         button.setText("START");
         seekBar.setEnabled(true);
-        seekBar.setProgress(300);
         isTimerOn = false;
+        setDurationFromSharedPreferences(sharedPreferences);
     }
 
     @Override
@@ -132,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+
         if (id == R.id.action_settings) {
             Intent openSettings = new Intent(this, SettingsActivity.class);
             startActivity(openSettings);
@@ -142,5 +166,26 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setDurationFromSharedPreferences(SharedPreferences sharedPreferences) {
+        duration = Integer.valueOf(sharedPreferences.getString("duration", "30"));
+        long durationInMillis = duration * 1000L;
+        updateTimer(durationInMillis);
+        seekBar.setProgress(duration);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+
+        if (s.equals("duration")) {
+            setDurationFromSharedPreferences(sharedPreferences);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 }
