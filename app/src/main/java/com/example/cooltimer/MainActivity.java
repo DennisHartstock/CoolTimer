@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         button = findViewById(R.id.button);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        seekBar.setMax(60);
+        seekBar.setMax(Integer.MAX_VALUE);
         setDurationFromSharedPreferences(sharedPreferences);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -116,11 +117,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     private void updateTimer(long millisUntilFinished) {
-        int minutes = (int) millisUntilFinished/1000/60;
-        int seconds = (int) millisUntilFinished/1000 - (minutes * 60);
+        int minutes = (int) millisUntilFinished / 1000 / 60;
+        int seconds = (int) millisUntilFinished / 1000 - (minutes * 60);
 
-        String minutesString = "";
-        String secondsString = "";
+        String minutesString;
+        String secondsString;
 
         if (minutes < 10) {
             minutesString = "0" + minutes;
@@ -133,8 +134,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         } else {
             secondsString = String.valueOf(seconds);
         }
+        textView.setText(String.format("%s:%s", minutesString, secondsString));
 
-        textView.setText(minutesString + ":" + secondsString);
     }
 
     private void resetTimer() {
@@ -169,7 +170,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     private void setDurationFromSharedPreferences(SharedPreferences sharedPreferences) {
-        duration = Integer.valueOf(sharedPreferences.getString("duration", "30"));
+
+        try {
+            duration = Integer.parseInt(sharedPreferences.getString("duration", "30"));
+        } catch (NumberFormatException nfe) {
+            Toast.makeText(this, "Duration should be a number", Toast.LENGTH_SHORT).show();
+        }
+
         long durationInMillis = duration * 1000L;
         updateTimer(durationInMillis);
         seekBar.setProgress(duration);
@@ -188,4 +195,5 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onDestroy();
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
+
 }

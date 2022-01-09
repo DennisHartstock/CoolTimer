@@ -49,11 +49,11 @@
 
     <Button
         android:id="@+id/button"
-        android:onClick="start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:background="@color/design_default_color_primary_dark"
+        android:onClick="start"
         android:text="start"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"

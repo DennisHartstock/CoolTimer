@@ -2,7 +2,9 @@ package com.example.cooltimer;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
@@ -13,7 +15,7 @@ import androidx.preference.PreferenceScreen;
 
 import java.util.Objects;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
@@ -32,6 +34,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 setPreferenceLabel(preference, value);
             }
         }
+
+        Preference preference = findPreference("duration");
+        assert preference != null;
+        preference.setOnPreferenceChangeListener(this);
     }
 
     private void setPreferenceLabel(Preference preference, String value) {
@@ -71,4 +77,20 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         Objects.requireNonNull(getPreferenceScreen().getSharedPreferences()).unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    @Override
+    public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+
+        if (preference.getKey().equals("duration")) {
+            String durationString = (String) newValue;
+
+            try {
+                Integer.parseInt(durationString);
+            } catch (NumberFormatException nfe) {
+                Toast.makeText(getContext(), "Duration should be a number", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
